@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodHub</title>
+    <style>
+        :root {
+            --primary: #ff0000;
+            --secondary: #1DB954;
+            --dark: #121212;
+            --light: #ffffff;
+            --gray: #282828;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+        }
+
+        nav {
+            background-color: var(--gray);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            margin-left: 2rem;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            margin-bottom: 2rem;
+        }
+
+        .filter-btn {
+            background-color: var(--gray);
+            color: var(--light);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            white-space: nowrap;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background-color: var(--primary);
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .food-card {
+            background-color: var(--gray);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .food-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .food-img {
+            width: 100%;
+            height: 200px;
+            background-color: #555;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            color: var(--light);
+        }
+
+        .food-info {
+            padding: 1rem;
+        }
+
+        .food-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .food-price {
+            color: var(--secondary);
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            display: block;
+            background-color: var(--primary);
+            color: var(--light);
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background-color: #cc0000;
+        }
+
+        .mini-cart {
+            background-color: var(--gray);
+            padding: 1rem;
+            border-radius: 12px;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            max-width: 300px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 200;
+        }
+
+        .mini-cart.visible {
+            display: block;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 300;
+        }
+
+        .modal-content {
+            background-color: var(--gray);
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 400px;
+            color: var(--light);
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .modal-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-content p {
+            margin-bottom: 1rem;
+        }
+
+        .modal-close {
+            background-color: var(--primary);
+            color: var(--light);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .modal-close:hover {
+            background-color: #cc0000;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">FoodHub</div>
+        <div class="nav-links">
+            <a href="#menu">Menu</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 id="menu">Menu</h1>
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterMenu('all')">All</button>
+            <button class="filter-btn" onclick="filterMenu('burgers')">Burgers</button>
+            <button class="filter-btn" onclick="filterMenu('pizza')">Pizza</button>
+            <button class="filter-btn" onclick="filterMenu('salads')">Salads</button>
+            <button class="filter-btn" onclick="filterMenu('desserts')">Desserts</button>
+            <button class="filter-btn" onclick="filterMenu('beverages')">Beverages</button>
+        </div>
+
+        <div class="menu-grid" id="menuGrid"></div>
+    </div>
+
+    <div class="mini-cart" id="miniCart"></div>
+
+    <div class="modal" id="foodModal">
+        <div class="modal-content">
+            <img id="modalImage" src="" alt="Food Image">
+            <h3 id="modalTitle"></h3>
+            <p id="modalDescription"></p>
+            <p><strong id="modalPrice"></strong></p>
+            <button class="modal-close" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const menuItems = JSON.parse(localStorage.getItem('menuItems')) || [];
+        const cart = {};
+        let currentFilter = 'all';
+
+        function displayMenu() {
+            const menuGrid = document.getElementById('menuGrid');
+            const filteredItems = currentFilter === 'all' 
+                ? menuItems 
+                : menuItems.filter(item => item.category === currentFilter);
+
+            menuGrid.innerHTML = filteredItems.map(item => `
+                <div class="food-card" onclick="showFoodDetails(${item.id})">
+                    <div class="food-img" style="background-image: url('${item.image || 'placeholder.jpg'}');"></div>
+                    <div class="food-info">
+                        <h3 class="food-title">${item.name}</h3>
+                        <p class="food-price">£${item.price.toFixed(2)}</p>
+                        <button class="btn" onclick="addToCart(event, ${item.id})">Add to Cart</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterMenu(category) {
+            currentFilter = category;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.filter-btn[onclick="filterMenu('${category}')"]`).classList.add('active');
+            displayMenu();
+        }
+
+        function showFoodDetails(id) {
+            const item = menuItems.find(item => item.id === id);
+            if (!item) return;
+
+            document.getElementById('modalImage').src = item.image || 'placeholder.jpg';
+            document.getElementById('modalTitle').textContent = item.name;
+            document.getElementById('modalDescription').textContent = item.description;
+            document.getElementById('modalPrice').textContent = `£${item.price.toFixed(2)}`;
+
+            document.getElementById('foodModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('foodModal').style.display = 'none';
+        }
+
+        function addToCart(event, id) {
+            event.stopPropagation(); // Prevent triggering the food card click event
+            const item = menuItems.find(item => item.id === id);
+            if (!item) return;
+
+            if (cart[id]) cart[id].quantity++;
+            else cart[id] = { ...item, quantity: 1 };
+
+            updateMiniCart();
+        }
+
+        function updateMiniCart() {
+            const miniCart = document.getElementById('miniCart');
+            const cartItems = Object.values(cart).map(item => `
+                <div>${item.name} x ${item.quantity} (£${(item.price * item.quantity).toFixed(2)})</div>
+            `).join('');
+
+            const subtotal = Object.values(cart).reduce((sum, item) => sum + item.price * item.quantity, 0);
+            miniCart.innerHTML = `
+                <h3>Cart</h3>
+                ${cartItems}
+                <p><strong>Subtotal: £${subtotal.toFixed(2)}</strong></p>
+            `;
+
+            miniCart.classList.add('visible');
+            setTimeout(() => miniCart.classList.remove('visible'), 3000);
+        }
+
+        displayMenu();
+    </script>
+</body>
+</html>
