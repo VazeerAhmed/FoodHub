@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodHub - Admin Panel</title>
+    <style>
+        :root { --primary: #ff0000; --secondary: #1DB954; --dark: #121212; --light: #ffffff; --gray: #282828; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+        body { background-color: var(--dark); color: var(--light); }
+        nav { background-color: var(--gray); padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo { color: var(--primary); font-size: 1.5rem; font-weight: bold; }
+        .container { max-width: 800px; margin: 2rem auto; }
+        .form-section, .items-list { background-color: var(--gray); padding: 2rem; margin-bottom: 2rem; border-radius: 12px; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #ccc; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem; background-color: var(--dark); border: 1px solid #444; color: var(--light); border-radius: 8px; }
+        .btn { background-color: var(--primary); color: var(--light); border: none; padding: 0.75rem 1rem; cursor: pointer; border-radius: 8px; }
+        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background-color: var(--dark); border-radius: 8px; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">FoodHub Admin</div>
+        <button class="btn" onclick="window.location.href='index.html'">View Menu</button>
+    </nav>
+
+    <div class="container">
+        <div class="form-section">
+            <h2>Add New Menu Item</h2>
+            <form id="menuForm" onsubmit="handleFormSubmit(event)">
+                <div class="form-group">
+                    <label for="name">Item Name</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" required>
+                        <option value="burgers">Burgers</option>
+                        <option value="pizza">Pizza</option>
+                        <option value="salads">Salads</option>
+                        <option value="desserts">Desserts</option>
+                        <option value="beverages">Beverages</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="price">Price (£)</label>
+                    <input type="number" id="price" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="image">Image URL</label>
+                    <input type="text" id="image" placeholder="Optional">
+                </div>
+                <button type="submit" class="btn">Add Item</button>
+            </form>
+        </div>
+
+        <div class="items-list">
+            <h2>Menu Items</h2>
+            <div id="menuItems"></div>
+        </div>
+    </div>
+
+    <script>
+        let menuItems = JSON.parse(localStorage.getItem('menuItems')) || [];
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            const newItem = {
+                id: Date.now(),
+                name: document.getElementById('name').value,
+                category: document.getElementById('category').value,
+                price: parseFloat(document.getElementById('price').value),
+                description: document.getElementById('description').value,
+                image: document.getElementById('image').value || 'placeholder.jpg',
+            };
+            menuItems.push(newItem);
+            localStorage.setItem('menuItems', JSON.stringify(menuItems));
+            refreshMenuItems();
+            event.target.reset();
+        }
+
+        function deleteItem(id) {
+            menuItems = menuItems.filter(item => item.id !== id);
+            localStorage.setItem('menuItems', JSON.stringify(menuItems));
+            refreshMenuItems();
+        }
+
+        function refreshMenuItems() {
+            const menuItemsContainer = document.getElementById('menuItems');
+            menuItemsContainer.innerHTML = menuItems.map(item => `
+                <div class="menu-item">
+                    <div>
+                        <strong>${item.name}</strong> (£${item.price.toFixed(2)})
+                        <p>${item.description}</p>
+                    </div>
+                    <button class="btn" onclick="deleteItem(${item.id})">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        refreshMenuItems();
+    </script>
+</body>
+</html>
